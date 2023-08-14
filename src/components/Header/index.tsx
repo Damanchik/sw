@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useRef } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -20,21 +20,28 @@ import { Search, SearchIconWrapper, StyledInputBase } from "./Styled";
 const Header = () => {
   const [search, setSearch] = useState<any[] | null>(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  let timeout = useRef<any>(null)
   const handleChange = (e: ChangeEvent) => {
     /**
-     * Запрос по хорошему отменять и запрашивать слудущий при разных e.currentTarget.value
-     * в определенныз интервалах времени, но не успеваю
+     * Задердка в 1 секунду
      */
     setAnchorEl(e.currentTarget as any);
     const searchValue = (e.target as HTMLInputElement).value;
-    fetchSearchData(searchValue).then((data) => {
-      if (data) {
-        const { data: res } = data;
-        if (res.count) {
-          setSearch(res.results);
+    const fetchSearch = async (searchValue="") => {
+      try {
+        const { data } = await fetchSearchData(searchValue);
+        if (data) {
+          setSearch(data.results);
         }
+      } catch (e) {
+        throw new Error("ошибка searchValue");
       }
-    });
+    };
+    clearTimeout(timeout.current)
+    timeout.current = setTimeout(() => {
+      fetchSearch(searchValue);
+    }, 1000);
+
   };
 
   const handleBlur = () => {

@@ -79,14 +79,14 @@ const ModalDialog: FC<IModalDialog> = ({
         />
         <TextField
           required
-          id={height}
+          id="height"
           label="height"
-          value={height}
+          value={data.height}
           onChange={handleChange}
         />
         <TextField
           required
-          id={mass}
+          id="mass"
           label="mass"
           value={data.mass}
           onChange={handleChange}
