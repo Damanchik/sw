@@ -1,33 +1,34 @@
 import { useEffect, useState } from "react";
-import { fetchPeoplesData } from "../../../api";
+import { fetchPersonData } from "../../../api";
 
-interface IUseFetchData {
-  page?: number;
-}
 /**
- * Хук запроса к персонажам
+ * Хук запроса к персонажу
+ * Забирает данные из LS, если мы их уже редактировали
  */
-const useFetchData = ({ page }: IUseFetchData) => {
-  const [result, setResult] = useState<any[] | null>(null);
-  const [count, setCount] = useState(null);
+const useFetchData = () => {
+  const [result, setResult] = useState();
   useEffect(() => {
+    if (localStorage.getItem(window.location.pathname)) {
+      const data = localStorage.getItem(window.location.pathname) as string;
+      setResult(JSON.parse(data));
+      return;
+    }
+
     const fetchData = async () => {
       try {
-        const { data } = await fetchPeoplesData(page);
-        console.log("data", data);
+        const { data } = await fetchPersonData(window.location.pathname);
         if (data) {
-          setResult(data.results);
-          setCount(data.count);
+          console.log(data);
+          setResult(data);
         }
       } catch (e) {
-        throw new Error("fetch error");
+        throw new Error("fetchPersonData");
       }
     };
-
     fetchData();
-  }, [page]);
+  }, []);
 
-  return { count, result };
+  return { result };
 };
 
 export { useFetchData };
